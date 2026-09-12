@@ -8,5 +8,8 @@
     "build:dev": "cd frontend && ./node_modules/.bin/vite build --mode development",
     "preview": "cd frontend && ./node_modules/.bin/vite preview",
     "lint": "cd frontend && ./node_modules/.bin/eslint ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0"
   }
 }
