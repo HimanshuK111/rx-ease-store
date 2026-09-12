@@ -18,10 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { apiClient, apiErrorMessage, type Medicine, type MedicineInput } from "@/lib/api";
+import { apiClient, apiErrorMessage, type Medicine, type MedicineInput, type PaginatedMedicineResponse } from "@/lib/api";
 import { currency } from "@/lib/cart";
 import { useAuth } from "@/hooks/useAuth";
-import { TableRowSkeleton } from "@/components/skeletons";
+import { TableRowSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/medicines")({
   head: () => ({
@@ -93,14 +93,15 @@ function ManageMedicinesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MedicineInput>(emptyForm);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["medicines"],
-    queryFn: apiClient.medicines.list,
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, error } = useQuery<PaginatedMedicineResponse, unknown>({
+    queryKey: ["medicines", page, PAGE_SIZE],
+    queryFn: () => apiClient.medicines.list(page, PAGE_SIZE),
     enabled: isPharmacist,
   });
 
-  const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil((data?.length ?? 0) / PAGE_SIZE));
+  const totalPages = Math.max(1, data?.total_pages ?? 1);
 
   // Keep the current page in range if the catalogue shrinks (e.g. after a delete)
   // or grows (e.g. after the query first loads).
@@ -108,11 +109,9 @@ function ManageMedicinesPage() {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
 
-  const pagedData = useMemo(() => {
-    if (!data) return [];
-    const start = (page - 1) * PAGE_SIZE;
-    return data.slice(start, start + PAGE_SIZE);
-  }, [data, page]);
+  const pagedData = useMemo<Medicine[]>(() => {
+    return data?.items ?? [];
+  }, [data]);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["medicines"] });
 
@@ -297,7 +296,7 @@ function ManageMedicinesPage() {
 
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="text-lg">Catalogue ({data?.length ?? 0})</CardTitle>
+            <CardTitle className="text-lg">Catalogue ({data?.total ?? 0})</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading && (
@@ -318,9 +317,9 @@ function ManageMedicinesPage() {
                 </TableBody>
               </Table>
             )}
-            {error && <p className="text-sm text-destructive">{apiErrorMessage(error)}</p>}
+            {error ? <p className="text-sm text-destructive">{apiErrorMessage(error)}</p> : null}
 
-            {data && data.length > 0 && (
+            {data && (data.items?.length ?? 0) > 0 && (
               <>
                 <Table>
                   <TableHeader>
@@ -333,7 +332,7 @@ function ManageMedicinesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pagedData.map((medicine) => (
+                    {pagedData.map((medicine: Medicine) => (
                       <TableRow key={medicine.id}>
                         <TableCell>
                           <div className="font-medium">{medicine.name}</div>
@@ -385,8 +384,8 @@ function ManageMedicinesPage() {
                 {totalPages > 1 && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
                     <p className="text-xs text-muted-foreground">
-                      Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, data.length)} of{" "}
-                      {data.length}
+                      Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, data.total)} of{" "}
+                      {data.total}
                     </p>
                     <div className="flex items-center gap-1">
                       <Button
@@ -429,7 +428,7 @@ function ManageMedicinesPage() {
               </>
             )}
 
-            {data && data.length === 0 && (
+            {data && data.total === 0 && (
               <p className="text-sm text-muted-foreground">No medicines yet — add the first one.</p>
             )}
           </CardContent>

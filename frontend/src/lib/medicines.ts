@@ -11,10 +11,9 @@ export const medicinesQuery = (
   page = 1,
   pageSize = 6,
 ) =>
-  queryOptions({
+  queryOptions<import("@/lib/api").PaginatedMedicineResponse>({
     queryKey: ["medicines", page, pageSize],
-    queryFn: () =>
-      apiClient.medicines.list(page, pageSize),
+    queryFn: () => apiClient.medicines.list(page, pageSize),
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
