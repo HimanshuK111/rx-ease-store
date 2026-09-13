@@ -28,10 +28,11 @@ export const Route = createFileRoute('/api/prescription-upload')({
 
           const { presignedUrl } = await presignUrl(token, {
   pathname,
-  operation: 'put',
-  access: 'private',
+  operation: "put",
+  access: "private",
+  addRandomSuffix: false,
   validUntil: Date.now() + 15 * 60 * 1000,
-})
+});
 
           return Response.json({
             pathname,
