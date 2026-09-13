@@ -128,7 +128,7 @@ function CheckoutPage() {
                 );
               }
 
-              const { pathname, presignedUrl } =
+              const { presignedUrl } =
                 (await uploadUrlResponse.json()) as {
                   pathname: string;
                   presignedUrl: string;
@@ -145,11 +145,15 @@ function CheckoutPage() {
                 throw new Error("Could not upload prescription");
               }
 
-              // Save the permanent Blob pathname against
-              // the order in FastAPI / Neon.
+              const uploadedBlob = (await blobResponse.json()) as {
+                pathname: string;
+              };
+
+              // Save the actual permanent Blob pathname returned by Vercel
+              // against the order in FastAPI / Neon.
               await apiClient.orders.attachPrescription(
                 order.id,
-                pathname,
+                uploadedBlob.pathname,
               );
             }
 
