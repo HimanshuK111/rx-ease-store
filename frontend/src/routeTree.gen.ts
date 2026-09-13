@@ -19,6 +19,8 @@ import { Route as SupportRouteImport } from './routes/support'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedMedicinesRouteImport } from './routes/_authenticated/medicines'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as ApiPrescriptionDownloadRouteImport } from './routes/api/prescription-download'
+import { Route as ApiPrescriptionUploadRouteImport } from './routes/api/prescription-upload'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +71,16 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPrescriptionDownloadRoute = ApiPrescriptionDownloadRouteImport.update({
+  id: '/api/prescription-download',
+  path: '/api/prescription-download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPrescriptionUploadRoute = ApiPrescriptionUploadRouteImport.update({
+  id: '/api/prescription-upload',
+  path: '/api/prescription-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +92,8 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/medicines': typeof AuthenticatedMedicinesRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/prescription-download': typeof ApiPrescriptionDownloadRoute
+  '/api/prescription-upload': typeof ApiPrescriptionUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +105,8 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/medicines': typeof AuthenticatedMedicinesRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/prescription-download': typeof ApiPrescriptionDownloadRoute
+  '/api/prescription-upload': typeof ApiPrescriptionUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +120,8 @@ export interface FileRoutesById {
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/medicines': typeof AuthenticatedMedicinesRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/api/prescription-download': typeof ApiPrescriptionDownloadRoute
+  '/api/prescription-upload': typeof ApiPrescriptionUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +135,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/medicines'
     | '/orders'
+    | '/api/prescription-download'
+    | '/api/prescription-upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +148,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/medicines'
     | '/orders'
+    | '/api/prescription-download'
+    | '/api/prescription-upload'
   id:
     | '__root__'
     | '/'
@@ -140,6 +162,8 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout'
     | '/_authenticated/medicines'
     | '/_authenticated/orders'
+    | '/api/prescription-download'
+    | '/api/prescription-upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +174,8 @@ export interface RootRouteChildren {
   PrescriptionsRoute: typeof PrescriptionsRoute
   ShopRoute: typeof ShopRoute
   SupportRoute: typeof SupportRoute
+  ApiPrescriptionDownloadRoute: typeof ApiPrescriptionDownloadRoute
+  ApiPrescriptionUploadRoute: typeof ApiPrescriptionUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -224,6 +250,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/prescription-download': {
+      id: '/api/prescription-download'
+      path: '/api/prescription-download'
+      fullPath: '/api/prescription-download'
+      preLoaderRoute: typeof ApiPrescriptionDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/prescription-upload': {
+      id: '/api/prescription-upload'
+      path: '/api/prescription-upload'
+      fullPath: '/api/prescription-upload'
+      preLoaderRoute: typeof ApiPrescriptionUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -250,6 +290,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrescriptionsRoute: PrescriptionsRoute,
   ShopRoute: ShopRoute,
   SupportRoute: SupportRoute,
+  ApiPrescriptionDownloadRoute: ApiPrescriptionDownloadRoute,
+  ApiPrescriptionUploadRoute: ApiPrescriptionUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
