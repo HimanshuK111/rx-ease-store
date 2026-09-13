@@ -12,7 +12,7 @@ from ..auth import get_current_user, require_pharmacist
 from ..config import BLOB_READ_WRITE_TOKEN
 from ..database import get_db
 from ..models import Medicine, Order, OrderItem, User
-from ..schemas import OrderCreate, OrderOut, OrderStatusUpdate
+from ..schemas import OrderCreate, OrderOut, OrderStatusUpdate, PrescriptionPathUpdate
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -137,6 +137,28 @@ async def upload_prescription(
     order.prescription_path = blob["url"]
     db.commit()
     db.refresh(order)
+    return order
+
+@router.patch("/{order_id}/prescription", response_model=OrderOut)
+def attach_prescription(
+    order_id: str,
+    payload: PrescriptionPathUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    order = db.get(Order, order_id)
+
+    if not order or order.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if not payload.prescription_path.startswith("prescriptions/"):
+        raise HTTPException(status_code=400, detail="Invalid prescription path")
+
+    order.prescription_path = payload.prescription_path
+
+    db.commit()
+    db.refresh(order)
+
     return order
 
 

@@ -135,3 +135,6 @@ class SupportTicketOut(BaseModel):
     message: str
     status: str
     created_at: datetime
+
+class PrescriptionPathUpdate(BaseModel):
+    prescription_path: str

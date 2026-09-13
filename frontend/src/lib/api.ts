@@ -70,9 +70,7 @@ api.interceptors.request.use((config) => {
   if (apiKey) config.headers["X-API-Key"] = apiKey;
 
   const token =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("rxease.access_token")
-      : null;
+    typeof window !== "undefined" ? window.localStorage.getItem("rxease.access_token") : null;
 
   if (token) config.headers.Authorization = `Bearer ${token}`;
 
@@ -87,29 +85,17 @@ export const apiClient = {
         password,
       });
 
-      const { data } = await api.post<{ access_token: string }>(
-        "/api/auth/login",
-        body,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+      const { data } = await api.post<{ access_token: string }>("/api/auth/login", body, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-      );
+      });
 
       return data;
     },
 
-    async register(payload: {
-      email: string;
-      password: string;
-      full_name: string;
-      phone: string;
-    }) {
-      const { data } = await api.post<{ access_token: string }>(
-        "/api/auth/register",
-        payload,
-      );
+    async register(payload: { email: string; password: string; full_name: string; phone: string }) {
+      const { data } = await api.post<{ access_token: string }>("/api/auth/register", payload);
 
       return data;
     },
@@ -122,44 +108,30 @@ export const apiClient = {
 
   medicines: {
     async list(page = 1, pageSize = 6) {
-      const { data } = await api.get<PaginatedMedicineResponse>(
-        "/api/medicines",
-        {
-          params: {
-            page,
-            page_size: pageSize,
-          },
+      const { data } = await api.get<PaginatedMedicineResponse>("/api/medicines", {
+        params: {
+          page,
+          page_size: pageSize,
         },
-      );
+      });
 
       return data;
     },
 
     async get(id: string) {
-      const { data } = await api.get<Medicine>(
-        `/api/medicines/${id}`,
-      );
+      const { data } = await api.get<Medicine>(`/api/medicines/${id}`);
 
       return data;
     },
 
     async create(payload: MedicineInput) {
-      const { data } = await api.post<Medicine>(
-        "/api/medicines",
-        payload,
-      );
+      const { data } = await api.post<Medicine>("/api/medicines", payload);
 
       return data;
     },
 
-    async update(
-      id: string,
-      payload: Partial<MedicineInput>,
-    ) {
-      const { data } = await api.put<Medicine>(
-        `/api/medicines/${id}`,
-        payload,
-      );
+    async update(id: string, payload: Partial<MedicineInput>) {
+      const { data } = await api.put<Medicine>(`/api/medicines/${id}`, payload);
 
       return data;
     },
@@ -184,25 +156,21 @@ export const apiClient = {
         quantity: number;
       }[];
     }) {
-      const { data } = await api.post<Order>(
-        "/api/orders",
-        payload,
-      );
+      const { data } = await api.post<Order>("/api/orders", payload);
 
       return data;
     },
 
-    async uploadPrescription(orderId: string, file: File) {
-      const body = new FormData();
-      body.append("file", file);
+    async attachPrescription(orderId: string, prescriptionPath: string) {
+  const { data } = await api.patch<Order>(
+    `/api/orders/${orderId}/prescription`,
+    {
+      prescription_path: prescriptionPath,
+    }
+  );
 
-      const { data } = await api.post<Order>(
-        `/api/orders/${orderId}/prescription`,
-        body,
-      );
-
-      return data;
-    },
+  return data;
+},
   },
 
   support: {
@@ -239,7 +207,5 @@ export function apiErrorMessage(error: unknown) {
     }
   }
 
-  return error instanceof Error
-    ? error.message
-    : "Something went wrong. Please try again.";
+  return error instanceof Error ? error.message : "Something went wrong. Please try again.";
 }
